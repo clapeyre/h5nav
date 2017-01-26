@@ -44,7 +44,6 @@ class ShellCmd(cmd.Cmd, object):
     def do_shell(self, s):
         """Execute a regular shell command"""
         os.system(s)
-    do_sh = do_shell
 
     def help_shell(self):
         print dedent("""\
@@ -52,7 +51,6 @@ class ShellCmd(cmd.Cmd, object):
                 Useful for e.g. 'shell ls' (to see what has been written).
                 Note : '!ls' is equivalent to 'shell ls'.
                 Warning : Your .bashrc file is *not* sourced.""")
-    help_sh = help_shell
 
 
 class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
@@ -107,7 +105,7 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
                 self.stdout.write('*** Unknown command: %s\n'%arg)
                 return
             elif len(helper) > 1:
-                self.stdout.write('*** {} is a shorcut to several commands'.format(cmd))
+                self.stdout.write('*** {} is a shortcut to several commands'.format(cmd))
                 self.stdout.write('    Please give more charaters for disambiguation')
                 return
             else:

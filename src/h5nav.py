@@ -12,6 +12,8 @@ import sys
 import cmd
 from os.path import splitext
 from textwrap import dedent
+
+import numpy as np
 from h5py import File
 
 VERSION = 0.1
@@ -226,18 +228,62 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
             print "*** invalid number of arguments"
             return
         if s == '*':
-            print "\tShape min mean max"
+            print "\tShape type min mean max"
             for dts in self.datasets:
                 print dts + ' :'
                 dts = self.get_elem(dts).value
-                print '\t', dts.shape, dts.min(), dts.mean(), dts.max()
+                print '\t', dts.dtype, dts.shape, dts.min(), dts.mean(), dts.max()
         else:
             try: nparr = self.get_elem(s).value
             except UknownLabelError: return
-            print "Shape min mean max"
-            print nparr.shape, nparr.min(), nparr.mean(), nparr.max()
+            print "Shape type min mean max"
+            print nparr.shape, nparr.dtype, nparr.min(), nparr.mean(), nparr.max()
 
     def complete_stats(self, text, line, begidx, endidx):
+        return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
+
+    def do_dump(self, s):
+        """Dump dataset in numpy binary format"""
+        if self.h5file is None:
+            print "*** please open a file"
+            return
+        if len(s.split()) != 1:
+            print "*** invalid number of arguments"
+            return
+        if s == '*':
+            for dts in self.datasets:
+                dts = self.get_elem(dts).value
+                np.save(s, dts)
+                print "--- file saved to {}.npy".format(s)
+        else:
+            try: nparr = self.get_elem(s).value
+            except UknownLabelError: return
+            np.save(s, nparr)
+            print "--- file saved to {}.npy".format(s)
+
+    def complete_dump(self, text, line, begidx, endidx):
+        return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
+
+    def do_dump_txt(self, s):
+        """Dump dataset in txt format"""
+        if self.h5file is None:
+            print "*** please open a file"
+            return
+        if len(s.split()) != 1:
+            print "*** invalid number of arguments"
+            return
+        if s == '*':
+            for dts in self.datasets:
+                dts = self.get_elem(dts).value
+                np.savetxt(s+'.txt', dts)
+                print "--- file saved to {}.txt".format(s)
+        else:
+            try: nparr = self.get_elem(s).value
+            except UknownLabelError: return
+            np.savetxt(s+'.txt', nparr)
+            print "--- file saved to {}.txt".format(s)
+
+    def complete_dump_txt(self, text, line, begidx, endidx):
         return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
 
     def get_elem(self, name):

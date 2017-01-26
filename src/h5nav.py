@@ -117,6 +117,7 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
         pass
 
     def do_open(self, s):
+        """Load an hdf5 file"""
         if len(s.split()) != 1:
             print "*** invalid number of arguments"
             return
@@ -138,6 +139,10 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
                 if self.h5file[self.position + f].__class__.__name__ == "Dataset"]
 
     def do_ls(self, s):
+        """sh-like ls (degraded)
+        
+        Supports fake globbing: either 'group_name' or '*' -> all folders
+        """
         if self.h5file is None:
             print "*** please open a file"
             return
@@ -157,6 +162,11 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
             print " ".join(sorted(out))
 
     def do_cd(self, s):
+        """sh-like cd (degraded)
+        
+        Supports cd -, cd ..(/.. etc), no arg (back to root)
+        and of course cd group
+        """
         if self.h5file is None:
             print "*** please open a file"
             return
@@ -189,6 +199,7 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
         return [ f for f in self.groups if f.startswith(text) ]
 
     def do_print(self, s):
+        """Print a dataset on screen"""
         if self.h5file is None:
             print "*** please open a file"
             return
@@ -207,6 +218,7 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
         return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
 
     def do_stats(self, s):
+        """Print statistics for dataset on screen"""
         if self.h5file is None:
             print "*** please open a file"
             return

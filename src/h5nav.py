@@ -182,7 +182,7 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
             tmp = self.last_pos[:]
             self.last_pos = self.position[:]
             self.position = tmp[:]
-        elif s[0] == '.':
+        elif s[:2] == '..':
             nb_up = s.count('..')
             pos = self.position.strip('/').split('/')
             if nb_up >= len(pos):

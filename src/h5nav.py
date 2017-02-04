@@ -62,13 +62,14 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
             Type help or ? for a list of commands,
                  ?about for more on this app""").format(VERSION)
 
+    path = '(no file)'
     h5file = None
     position = "/"
     last_pos = "/"
 
     @property
     def prompt(self):
-        return "h5nav " + self.position + " > "
+        return "h5nav {0}{1} > ".format(self.path, self.position)
 
     def precmd(self, line):
         """Reprint the line to know what is executed"""
@@ -119,16 +120,19 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
         pass
 
     def do_open(self, s):
-        """Load an hdf5 file"""
         if len(s.split()) != 1:
             print "*** invalid number of arguments"
             return
+        self.path = s
         self.h5file = File(s, 'r')
         self.position = '/'
 
     def complete_open(self, text, line, begidx, endidx):
         candidates = [f for f in os.listdir('.') if splitext(f)[1][1:] in ["h5", "hdf", "cgns"]]
         return [f for f in candidates if f.startswith(text)]
+
+    def help_open(self):
+        print "Load an hdf5 file"
 
     @property
     def groups(self):
@@ -228,18 +232,43 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
             print "*** invalid number of arguments"
             return
         if s == '*':
-            print "\tShape type min mean max"
+            print "\tShape type min mean max std"
             for dts in self.datasets:
                 print dts + ' :'
                 dts = self.get_elem(dts).value
-                print '\t', dts.dtype, dts.shape, dts.min(), dts.mean(), dts.max()
+                print '\t', dts.dtype, dts.shape, dts.min(), dts.mean(), dts.max(), dts.std()
         else:
             try: nparr = self.get_elem(s).value
             except UknownLabelError: return
-            print "Shape type min mean max"
-            print nparr.shape, nparr.dtype, nparr.min(), nparr.mean(), nparr.max()
+            print "Shape type min mean max std"
+            print nparr.shape, nparr.dtype, nparr.min(), nparr.mean(), nparr.max(), nparr.std()
 
     def complete_stats(self, text, line, begidx, endidx):
+        return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
+
+    def do_pdf(self, s):
+        """Print pdf for dataset on screen"""
+        if self.h5file is None:
+            print "*** please open a file"
+            return
+        if len(s.split()) != 1:
+            print "*** invalid number of arguments"
+            return
+        if s == '*':
+            print "\tMin        Max        | Pdf (10 buckets)"
+            for dts in self.datasets:
+                print dts + ' :'
+                dts = self.get_elem(dts).value
+                print "\t{0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),
+                print np.histogram(dts)[0].tolist()
+        else:
+            try: nparr = self.get_elem(s).value
+            except UknownLabelError: return
+            print "Min        Max        | Pdf (10 buckets)"
+            print "{0:5.4e} {1:5.4e} |".format(nparr.min(), nparr.max()),
+            print np.histogram(nparr)[0].tolist()
+
+    def complete_pdf(self, text, line, begidx, endidx):
         return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
 
     def do_dump(self, s):

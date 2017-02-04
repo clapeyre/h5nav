@@ -40,6 +40,7 @@ class ExitCmd(cmd.Cmd, object):
         return True
     do_EOF = do_exit
     do_quit = do_exit
+    do_bye = do_exit
 
 
 class ShellCmd(cmd.Cmd, object):
@@ -55,7 +56,61 @@ class ShellCmd(cmd.Cmd, object):
                 Warning : Your .bashrc file is *not* sourced.""")
 
 
-class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
+class SmartCmd(cmd.Cmd, object):
+    """Good featured command line
+    
+    - function / help shortcuts (as short as disambiguation permits)
+    - catch ^C
+    - catch assertion errors
+    """
+    def cmdloop_with_keyboard_interrupt(self):
+        doQuit = False
+        while doQuit != True:
+            try:
+                self.cmdloop()
+                doQuit = True
+            except KeyboardInterrupt:
+                self.intro = None
+                sys.stdout.write('\n')
+
+    def default(self, line):
+        """Override this command from cmd.Cmd to accept shorcuts"""
+        cmd, arg, _ = self.parseline(line)
+        func = [getattr(self, n) for n in self.get_names() if n.startswith('do_' + cmd)]
+        if len(func) == 0:
+            self.stdout.write('*** Unknown syntax: %s\n'%line)
+            return
+        elif len(func) > 1:
+            print '*** {} is a shorcut to several commands'.format(cmd)
+            print '    Please give more charaters for disambiguation'
+            return
+        else:
+            func[0](arg)
+
+    def do_help(self, arg):
+        """Wrapper for cmd.Cmd.do_help to accept shortcuts"""
+        if arg:
+            helper = [n[5:] for n in self.get_names() if n.startswith('help_' + arg)]
+            if len(helper) == 0:
+                self.stdout.write('*** Unknown command: %s\n'%arg)
+                return
+            elif len(helper) > 1:
+                self.stdout.write('*** {} is a shorcut to several commands'.format(cmd))
+                self.stdout.write('    Please give more charaters for disambiguation')
+                return
+            else:
+                arg = helper[0]
+        cmd.Cmd.do_help(self, arg) 
+
+    def onecmd(self, line):
+        """Wrapper for cmd.Cmd.onecmd to catch assertion errors"""
+        try:
+            cmd.Cmd.onecmd(self, line)
+        except AssertionError as err:
+            print "\n".join("*** " + l for l in err.message.split('\n'))
+
+
+class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     """Command line interpreter for h5nav"""
     intro = dedent("""\
             Welcome to the h5nav command line (V.{})
@@ -85,35 +140,6 @@ class H5NavCmd(ExitCmd, ShellCmd, cmd.Cmd, object):
                 XXX TODO XXX
                 
                 """)
-
-    def default(self, line):
-        """Override this command from cmd.Cmd to accept shorcuts"""
-        cmd, arg, _ = self.parseline(line)
-        func = [getattr(self, n) for n in self.get_names() if n.startswith('do_' + cmd)]
-        if len(func) == 0:
-            self.stdout.write('*** Unknown syntax: %s\n'%line)
-            return
-        elif len(func) > 1:
-            print '*** {} is a shortcut to several commands'.format(cmd)
-            print '    Please give more charaters for disambiguation'
-            return
-        else:
-            func[0](arg)
-
-    def do_help(self, arg):
-        """Wrapper for cmd.Cmd.do_help to accept shortcuts"""
-        if arg:
-            helper = [n[5:] for n in self.get_names() if n.startswith('help_' + arg)]
-            if len(helper) == 0:
-                self.stdout.write('*** Unknown command: %s\n'%arg)
-                return
-            elif len(helper) > 1:
-                self.stdout.write('*** {} is a shortcut to several commands'.format(cmd))
-                self.stdout.write('    Please give more charaters for disambiguation')
-                return
-            else:
-                arg = helper[0]
-        cmd.Cmd.do_help(self, arg) 
 
     def emptyline(self):
         """Empty line behavior: do nothing"""
@@ -336,4 +362,4 @@ class UknownLabelError(Exception):
 if __name__ == '__main__':
     interpreter = H5NavCmd()
     if sys.argv[1:]: interpreter.do_open(sys.argv[1])
-    interpreter.cmdloop()
+    interpreter.cmdloop_with_keyboard_interrupt()

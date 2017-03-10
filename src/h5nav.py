@@ -10,7 +10,7 @@ Created Jan 2017 by C. Lapeyre (corentin.lapeyre@gmail.com)
 import os
 import sys
 import cmd
-from os.path import splitext
+from os.path import splitext, isfile
 from textwrap import dedent
 
 import numpy as np
@@ -124,7 +124,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
 
     @property
     def prompt(self):
-        return "h5nav {0}{1} > ".format(self.path, self.position)
+        return "\033[92mh5nav\033[0m {0}{1} > ".format(self.path, self.position)
 
     def precmd(self, line):
         """Reprint the line to know what is executed"""
@@ -146,9 +146,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         pass
 
     def do_open(self, s):
-        if len(s.split()) != 1:
-            print "*** invalid number of arguments"
-            return
+        assert len(s.split()) == 1, "invalid number of arguments"
+        assert isfile(s), "Can't access file " + s
         self.path = s
         self.h5file = File(s, 'r')
         self.position = '/'

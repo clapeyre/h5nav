@@ -257,17 +257,29 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         if len(s.split()) != 1:
             print "*** invalid number of arguments"
             return
+        def print_stats(nparr):
+            try:
+                mini = nparr.min()
+                mean = nparr.mean()
+                maxi = nparr.max()
+                std = nparr.std()
+            except:
+                mini = "Undef"
+                mean = "Undef"
+                maxi = "Undef"
+                std = "Undef"
+            print nparr.shape, nparr.dtype, mini, mean, maxi, std
         if s == '*':
             print "\tShape type min mean max std"
             for dts in self.datasets:
                 print dts + ' :'
-                dts = self.get_elem(dts).value
-                print '\t', dts.dtype, dts.shape, dts.min(), dts.mean(), dts.max(), dts.std()
+                print '\t',
+                print_stats(self.get_elem(dts).value)
         else:
             try: nparr = self.get_elem(s).value
             except UknownLabelError: return
             print "Shape type min mean max std"
-            print nparr.shape, nparr.dtype, nparr.min(), nparr.mean(), nparr.max(), nparr.std()
+            print_stats(nparr)
 
     def complete_stats(self, text, line, begidx, endidx):
         return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]

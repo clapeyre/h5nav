@@ -217,8 +217,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             out = [g + '/' for g in self.groups] + self.datasets
             print " ".join(sorted(out))
 
-    # def help_ls(self):
-    #     print "List current group contents. Supports `ls *`"
+    def help_ls(self):
+        print "List current group contents. Supports `ls *`"
 
     def do_cd(self, s):
         """sh-like cd (degraded)
@@ -326,6 +326,9 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
 
+    def help_stats(self):
+        print "Get general statistics of dataset"
+
     def do_pdf(self, s):
         """Print pdf for dataset on screen"""
         if self.h5file is None:
@@ -354,6 +357,9 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
 
+    def help_pdf(self):
+        print "Get pdf of dataset"
+
     def do_dump(self, s):
         """Dump dataset in numpy binary format"""
         if self.h5file is None:
@@ -379,7 +385,10 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
 
-    def do_dump_txt(self, s):
+    def help_dump(self):
+        print "Dump dataset to numpy binary"
+
+    def do_txt_dump(self, s):
         """Dump dataset in txt format"""
         if self.h5file is None:
             print "*** please open a file"
@@ -400,9 +409,12 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             np.savetxt(s + '.txt', nparr)
             print "--- file saved to {}.txt".format(s)
 
-    def complete_dump_txt(self, text, line, begidx, endidx):
+    def complete_txt_dump(self, text, line, begidx, endidx):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
+
+    def help_txt_dump(self):
+        print "Dump dataset to txt file"
 
     def get_elem(self, name):
         return self.h5file[self.position

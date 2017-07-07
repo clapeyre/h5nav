@@ -1,4 +1,6 @@
+import os
 import pytest
+import numpy as np
 
 from .context import cli, setup_module, teardown_module, interp
 
@@ -20,6 +22,8 @@ def test_get_whitespace_fail(interp):
 def test_helps_work(capsys, interp):
     for cmd in ["help_" + cmd[3:] for cmd in dir(interp)
                 if cmd[:3] == "do_"]:
+        if cmd == "help_help":
+            continue
         assert hasattr(interp, cmd)
 
 
@@ -117,3 +121,47 @@ field1 :
  50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74
  75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99]
 """
+
+
+# `stats` command
+def test_stats(capsys, interp):
+    interp.do_cd("Group1")
+    interp.do_cd("Subgroup1")
+    interp.do_stats("field1")
+    out, err = capsys.readouterr()
+    assert out == """\
+Shape type min mean max std
+(100,) int64 0 49.5 99 28.8660700477
+"""
+
+
+# `pdf` command
+def test_pdf(capsys, interp):
+    interp.do_cd("Group1")
+    interp.do_cd("Subgroup1")
+    interp.do_pdf("field1")
+    out, err = capsys.readouterr()
+    assert out == """\
+Min        Max        | Pdf (10 buckets)
+0.0000e+00 9.9000e+01 | [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+"""
+
+
+# `dump` command
+def test_dump(capsys, interp):
+    fname = "field1.npy"
+    interp.do_cd(" Group2")
+    interp.do_dump("field1")
+    data = np.load(fname)
+    assert np.allclose(data, np.zeros(10))
+    os.remove(fname)
+
+
+# `txt_dump` command
+def test_txt_dump(capsys, interp):
+    fname = "field1.txt"
+    interp.do_cd(" Group2")
+    interp.do_txt_dump("field1")
+    data = np.loadtxt(fname)
+    assert np.allclose(data, np.zeros(10))
+    os.remove(fname)

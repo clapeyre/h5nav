@@ -16,7 +16,7 @@ from textwrap import dedent
 import numpy as np
 from h5py import File
 
-__version__ = 0.1
+__version__ = 0.1.0
 
 class ExitCmd(cmd.Cmd, object):
     def can_exit(self):
@@ -113,7 +113,7 @@ class SmartCmd(cmd.Cmd, object):
 class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     """Command line interpreter for h5nav"""
     intro = dedent("""\
-            Welcome to the h5nav command line (V.{})
+            Welcome to the h5nav command line (V{})
             Type help or ? for a list of commands,
                  ?about for more on this app""").format(__version__)
 
@@ -133,13 +133,13 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
 
     def help_about(self):
         print dedent("""
-                ------------------------
-                Welcome to the h5nav app
-                ------------------------
+            Welcome to the h5nav app!
 
-                XXX TODO XXX
-
-                """)
+            With this app, you can navigate a .h5 file as if you were in
+            the command line. Use `cd`, `ls`, etc... to this end.
+            Information about the various fields can be given using `stats`,
+            `pdf` or `dump` for example.
+            """)
 
     def emptyline(self):
         """Empty line behavior: do nothing"""
@@ -263,10 +263,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 maxi = nparr.max()
                 std = nparr.std()
             except:
-                mini = "Undef"
-                mean = "Undef"
-                maxi = "Undef"
-                std = "Undef"
+                mini, mean, maxi, std = ["Undef"]*4
             print nparr.shape, nparr.dtype, mini, mean, maxi, std
         if s == '*':
             print "\tShape type min mean max std"

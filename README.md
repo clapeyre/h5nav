@@ -10,9 +10,10 @@ Get the files:
 git clone https://github.com/clapeyre/h5nav.git
 ```
 
-and add the `bin/` dir to your path. In .bashrc:
+and install using the usual python method:
 
 ```
-export PATH="$PATH:/path/to/h5nav/bin"
+cd h5nav
+python setup.py install
 ```
 

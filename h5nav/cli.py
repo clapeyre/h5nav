@@ -16,7 +16,8 @@ from textwrap import dedent
 import numpy as np
 from h5py import File
 
-__version__ = 0.1.0
+__version__ = "0.1.0"
+
 
 class ExitCmd(cmd.Cmd, object):
     def can_exit(self):
@@ -65,7 +66,7 @@ class SmartCmd(cmd.Cmd, object):
     """
     def cmdloop_with_keyboard_interrupt(self):
         doQuit = False
-        while doQuit != True:
+        while not doQuit:
             try:
                 self.cmdloop()
                 doQuit = True
@@ -76,9 +77,10 @@ class SmartCmd(cmd.Cmd, object):
     def default(self, line):
         """Override this command from cmd.Cmd to accept shorcuts"""
         cmd, arg, _ = self.parseline(line)
-        func = [getattr(self, n) for n in self.get_names() if n.startswith('do_' + cmd)]
+        func = [getattr(self, n) for n in self.get_names()
+                if n.startswith('do_' + cmd)]
         if len(func) == 0:
-            self.stdout.write('*** Unknown syntax: %s\n'%line)
+            self.stdout.write('*** Unknown syntax: %s\n' % line)
             return
         elif len(func) > 1:
             print '*** {} is a shorcut to several commands'.format(cmd)
@@ -90,13 +92,16 @@ class SmartCmd(cmd.Cmd, object):
     def do_help(self, arg):
         """Wrapper for cmd.Cmd.do_help to accept shortcuts"""
         if arg:
-            helper = [n[5:] for n in self.get_names() if n.startswith('help_' + arg)]
+            helper = [n[5:] for n in self.get_names()
+                      if n.startswith('help_' + arg)]
             if len(helper) == 0:
-                self.stdout.write('*** Unknown command: %s\n'%arg)
+                self.stdout.write('*** Unknown command: %s\n' % arg)
                 return
             elif len(helper) > 1:
-                self.stdout.write('*** {} is a shorcut to several commands'.format(cmd))
-                self.stdout.write('    Please give more charaters for disambiguation')
+                self.stdout.write((
+                    "*** {} is a shorcut to several commands\n"
+                    "     Please give more characters for disambiguation"
+                    ).format(cmd))
                 return
             else:
                 arg = helper[0]
@@ -113,7 +118,7 @@ class SmartCmd(cmd.Cmd, object):
 class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     """Command line interpreter for h5nav"""
     intro = dedent("""\
-            Welcome to the h5nav command line (V{})
+            Welcome to the h5nav command line (V {})
             Type help or ? for a list of commands,
                  ?about for more on this app""").format(__version__)
 
@@ -124,11 +129,12 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
 
     @property
     def prompt(self):
-        return "\033[92mh5nav\033[0m {0}{1} > ".format(self.path, self.position)
+        return "\033[92mh5nav\033[0m {0}{1} > ".format(self.path,
+                                                       self.position)
 
     def precmd(self, line):
         """Reprint the line to know what is executed"""
-        #print "\n >>> executing: ", line
+        # print "\n >>> executing: ", line
         return line
 
     def help_about(self):
@@ -153,7 +159,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         self.position = '/'
 
     def complete_open(self, text, line, begidx, endidx):
-        candidates = [f for f in os.listdir('.') if splitext(f)[1][1:] in ["h5", "hdf", "cgns"]]
+        candidates = [f for f in os.listdir('.')
+                      if splitext(f)[1][1:] in ["h5", "hdf", "cgns"]]
         return [f for f in candidates if f.startswith(text)]
 
     def help_open(self):
@@ -189,7 +196,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             self.position = save[:]
             self.last_pos = save_last[:]
         else:
-            out = [s+'/' for s in self.groups] + self.datasets
+            out = [g + '/' for g in self.groups] + self.datasets
             print " ".join(sorted(out))
 
     def do_cd(self, s):
@@ -224,7 +231,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             try:
                 self.position += self.get_whitespace_name(s).strip('/') + '/'
                 self.last_pos = self.position[:]
-            except UknownLabelError: return
+            except UknownLabelError:
+                return
 
     def complete_cd(self, text, line, begidx, endidx):
         return [f for f in self.groups if f.startswith(text)]
@@ -242,11 +250,14 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 print dts + ' :'
                 print '\t', self.get_elem(dts).value
         else:
-            try: print self.get_elem(s).value
-            except UknownLabelError: return
+            try:
+                print self.get_elem(s).value
+            except UknownLabelError:
+                return
 
     def complete_print(self, text, line, begidx, endidx):
-        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
+        return [f for f in [s.strip() for s in self.datasets]
+                if f.startswith(text)]
 
     def do_stats(self, s):
         """Print statistics for dataset on screen"""
@@ -256,6 +267,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         if len(s.split()) != 1:
             print "*** invalid number of arguments"
             return
+
         def print_stats(nparr):
             try:
                 mini = nparr.min()
@@ -272,13 +284,16 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 print '\t',
                 print_stats(self.get_elem(dts).value)
         else:
-            try: nparr = self.get_elem(s).value
-            except UknownLabelError: return
+            try:
+                nparr = self.get_elem(s).value
+            except UknownLabelError:
+                return
             print "Shape type min mean max std"
             print_stats(nparr)
 
     def complete_stats(self, text, line, begidx, endidx):
-        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
+        return [f for f in [s.strip() for s in self.datasets]
+                if f.startswith(text)]
 
     def do_pdf(self, s):
         """Print pdf for dataset on screen"""
@@ -296,14 +311,17 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 print "\t{0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),
                 print np.histogram(dts)[0].tolist()
         else:
-            try: nparr = self.get_elem(s).value
-            except UknownLabelError: return
+            try:
+                nparr = self.get_elem(s).value
+            except UknownLabelError:
+                return
             print "Min        Max        | Pdf (10 buckets)"
             print "{0:5.4e} {1:5.4e} |".format(nparr.min(), nparr.max()),
             print np.histogram(nparr)[0].tolist()
 
     def complete_pdf(self, text, line, begidx, endidx):
-        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
+        return [f for f in [s.strip() for s in self.datasets]
+                if f.startswith(text)]
 
     def do_dump(self, s):
         """Dump dataset in numpy binary format"""
@@ -319,13 +337,16 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 np.save(s, dts)
                 print "--- file saved to {}.npy".format(s)
         else:
-            try: nparr = self.get_elem(s).value
-            except UknownLabelError: return
+            try:
+                nparr = self.get_elem(s).value
+            except UknownLabelError:
+                return
             np.save(s, nparr)
             print "--- file saved to {}.npy".format(s)
 
     def complete_dump(self, text, line, begidx, endidx):
-        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
+        return [f for f in [s.strip() for s in self.datasets]
+                if f.startswith(text)]
 
     def do_dump_txt(self, s):
         """Dump dataset in txt format"""
@@ -341,13 +362,16 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 np.savetxt(s+'.txt', dts)
                 print "--- file saved to {}.txt".format(s)
         else:
-            try: nparr = self.get_elem(s).value
-            except UknownLabelError: return
-            np.savetxt(s+'.txt', nparr)
+            try:
+                nparr = self.get_elem(s).value
+            except UknownLabelError:
+                return
+            np.savetxt(s + '.txt', nparr)
             print "--- file saved to {}.txt".format(s)
 
     def complete_dump_txt(self, text, line, begidx, endidx):
-        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
+        return [f for f in [s.strip() for s in self.datasets]
+                if f.startswith(text)]
 
     def get_elem(self, name):
         return self.h5file[self.position
@@ -357,7 +381,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         """Wrap search for names with leading whitespace(s)"""
         targets = self.h5file[self.position].keys()
         for i in range(5):
-            if s in targets: return s
+            if s in targets:
+                return s
             s = " " + s
         print "*** unknown label"
         raise UknownLabelError
@@ -367,7 +392,12 @@ class UknownLabelError(Exception):
     pass
 
 
-if __name__ == '__main__':
+def main():
     interpreter = H5NavCmd()
-    if sys.argv[1:]: interpreter.do_open(sys.argv[1])
+    if sys.argv[1:]:
+        interpreter.do_open(sys.argv[1])
     interpreter.cmdloop_with_keyboard_interrupt()
+
+
+if __name__ == '__main__':
+    main()

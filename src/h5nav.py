@@ -24,10 +24,10 @@ class ExitCmd(cmd.Cmd, object):
         return True
 
     def onecmd(self, line):
-        r = super (ExitCmd, self).onecmd(line)
+        r = super(ExitCmd, self).onecmd(line)
         if r and (self.can_exit() or
-           raw_input('exit anyway ? (yes/no):')=='yes'):
-             return True
+                  raw_input('exit anyway ? (yes/no):') == 'yes'):
+            return True
         return False
 
     def do_exit(self, s):
@@ -227,7 +227,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             except UknownLabelError: return
 
     def complete_cd(self, text, line, begidx, endidx):
-        return [ f for f in self.groups if f.startswith(text) ]
+        return [f for f in self.groups if f.startswith(text)]
 
     def do_print(self, s):
         """Print a dataset on screen"""
@@ -246,7 +246,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             except UknownLabelError: return
 
     def complete_print(self, text, line, begidx, endidx):
-        return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
+        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
 
     def do_stats(self, s):
         """Print statistics for dataset on screen"""
@@ -328,7 +328,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             print "--- file saved to {}.npy".format(s)
 
     def complete_dump(self, text, line, begidx, endidx):
-        return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
+        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
 
     def do_dump_txt(self, s):
         """Dump dataset in txt format"""
@@ -350,7 +350,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             print "--- file saved to {}.txt".format(s)
 
     def complete_dump_txt(self, text, line, begidx, endidx):
-        return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
+        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
 
     def get_elem(self, name):
         return self.h5file[self.position

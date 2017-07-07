@@ -1,1 +1,6 @@
 *.pyc
+*egg-info
+.cache
+.coverage
+.coveralls.yml
+htmlcov

@@ -50,7 +50,7 @@ class ShellCmd(cmd.Cmd, object):
 
     def help_shell(self):
         print dedent("""\
-                Execute a regular shell command. 
+                Execute a regular shell command.
                 Useful for e.g. 'shell ls' (to see what has been written).
                 Note : '!ls' is equivalent to 'shell ls'.
                 Warning : Your .bashrc file is *not* sourced.""")
@@ -58,7 +58,7 @@ class ShellCmd(cmd.Cmd, object):
 
 class SmartCmd(cmd.Cmd, object):
     """Good featured command line
-    
+
     - function / help shortcuts (as short as disambiguation permits)
     - catch ^C
     - catch assertion errors
@@ -100,7 +100,7 @@ class SmartCmd(cmd.Cmd, object):
                 return
             else:
                 arg = helper[0]
-        cmd.Cmd.do_help(self, arg) 
+        cmd.Cmd.do_help(self, arg)
 
     def onecmd(self, line):
         """Wrapper for cmd.Cmd.onecmd to catch assertion errors"""
@@ -138,7 +138,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 ------------------------
 
                 XXX TODO XXX
-                
+
                 """)
 
     def emptyline(self):
@@ -171,7 +171,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
 
     def do_ls(self, s):
         """sh-like ls (degraded)
-        
+
         Supports fake globbing: either 'group_name' or '*' -> all folders
         """
         if self.h5file is None:
@@ -194,7 +194,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
 
     def do_cd(self, s):
         """sh-like cd (degraded)
-        
+
         Supports cd -, cd ..(/.. etc), no arg (back to root)
         and of course cd group
         """
@@ -281,7 +281,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             print_stats(nparr)
 
     def complete_stats(self, text, line, begidx, endidx):
-        return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
+        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
 
     def do_pdf(self, s):
         """Print pdf for dataset on screen"""
@@ -306,7 +306,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             print np.histogram(nparr)[0].tolist()
 
     def complete_pdf(self, text, line, begidx, endidx):
-        return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
+        return [f for f in [s.strip() for s in self.datasets] if f.startswith(text)]
 
     def do_dump(self, s):
         """Dump dataset in numpy binary format"""
@@ -353,7 +353,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         return [ f for f in [s.strip() for s in self.datasets] if f.startswith(text) ]
 
     def get_elem(self, name):
-        return self.h5file[self.position 
+        return self.h5file[self.position
                            + self.get_whitespace_name(name)]
 
     def get_whitespace_name(self, s):

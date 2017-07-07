@@ -43,6 +43,12 @@ class ExitCmd(cmd.Cmd, object):
     do_quit = do_exit
     do_bye = do_exit
 
+    def help_exit(self):
+        print "Get out of here"
+    help_EOF = help_exit
+    help_quit = help_exit
+    help_bye = help_exit
+
 
 class ShellCmd(cmd.Cmd, object):
     def do_shell(self, s):
@@ -184,20 +190,35 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         if self.h5file is None:
             print "*** please open a file"
             return
-        if '*' in s:
+
+        def ls_grp(grp):
             save = self.position[:]
             save_last = self.last_pos[:]
-            for grp in self.groups:
-                print grp + "/"
-                self.do_cd(grp)
-                print "\t",
-                self.do_ls('')
-                self.do_cd('..')
+            print grp + "/"
+            self.do_cd(grp)
+            print "    ",
+            self.do_ls('')
+            self.do_cd('..')
             self.position = save[:]
             self.last_pos = save_last[:]
+
+        if '*' in s:
+            for grp in self.groups:
+                ls_grp(grp)
+            print "./"
+            print "    " + " ".join(self.datasets)
+        elif s:
+            try:
+                grp = self.get_whitespace_name(s)
+            except UnknownLabelError:
+                return
+            ls_grp(grp)
         else:
             out = [g + '/' for g in self.groups] + self.datasets
             print " ".join(sorted(out))
+
+    # def help_ls(self):
+    #     print "List current group contents. Supports `ls *`"
 
     def do_cd(self, s):
         """sh-like cd (degraded)
@@ -208,7 +229,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         if self.h5file is None:
             print "*** please open a file"
             return
-        if len(s.split()) != 1:
+        if len(s.split()) > 1:
             print "*** invalid number of arguments"
             return
         if s == '':
@@ -229,13 +250,20 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 self.position = '/' + '/'.join(pos[:len(pos) - nb_up]) + '/'
         else:
             try:
-                self.position += self.get_whitespace_name(s).strip('/') + '/'
-                self.last_pos = self.position[:]
-            except UknownLabelError:
+                pos = self.get_whitespace_name(s).strip('/')
+            except UnknownLabelError:
                 return
+            if pos not in self.groups:
+                print "*** can only cd into groups"
+                return
+            self.position += pos + '/'
+            self.last_pos = self.position[:]
 
     def complete_cd(self, text, line, begidx, endidx):
         return [f for f in self.groups if f.startswith(text)]
+
+    def help_cd(self):
+        print "Enter group. Also ok: `cd ..` (up), `cd -` (last), `cd` (root)"
 
     def do_print(self, s):
         """Print a dataset on screen"""
@@ -248,16 +276,19 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         if s == '*':
             for dts in self.datasets:
                 print dts + ' :'
-                print '\t', self.get_elem(dts).value
+                print '    ', self.get_elem(dts).value
         else:
             try:
                 print self.get_elem(s).value
-            except UknownLabelError:
+            except UnknownLabelError:
                 return
 
     def complete_print(self, text, line, begidx, endidx):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
+
+    def help_print(self):
+        print "Print dataset to screen"
 
     def do_stats(self, s):
         """Print statistics for dataset on screen"""
@@ -278,15 +309,15 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 mini, mean, maxi, std = ["Undef"]*4
             print nparr.shape, nparr.dtype, mini, mean, maxi, std
         if s == '*':
-            print "\tShape type min mean max std"
+            print "    Shape type min mean max std"
             for dts in self.datasets:
                 print dts + ' :'
-                print '\t',
+                print '    ',
                 print_stats(self.get_elem(dts).value)
         else:
             try:
                 nparr = self.get_elem(s).value
-            except UknownLabelError:
+            except UnknownLabelError:
                 return
             print "Shape type min mean max std"
             print_stats(nparr)
@@ -304,16 +335,16 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             print "*** invalid number of arguments"
             return
         if s == '*':
-            print "\tMin        Max        | Pdf (10 buckets)"
+            print "    Min        Max        | Pdf (10 buckets)"
             for dts in self.datasets:
                 print dts + ' :'
                 dts = self.get_elem(dts).value
-                print "\t{0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),
+                print "    {0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),
                 print np.histogram(dts)[0].tolist()
         else:
             try:
                 nparr = self.get_elem(s).value
-            except UknownLabelError:
+            except UnknownLabelError:
                 return
             print "Min        Max        | Pdf (10 buckets)"
             print "{0:5.4e} {1:5.4e} |".format(nparr.min(), nparr.max()),
@@ -339,7 +370,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         else:
             try:
                 nparr = self.get_elem(s).value
-            except UknownLabelError:
+            except UnknownLabelError:
                 return
             np.save(s, nparr)
             print "--- file saved to {}.npy".format(s)
@@ -364,7 +395,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         else:
             try:
                 nparr = self.get_elem(s).value
-            except UknownLabelError:
+            except UnknownLabelError:
                 return
             np.savetxt(s + '.txt', nparr)
             print "--- file saved to {}.txt".format(s)
@@ -385,10 +416,10 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 return s
             s = " " + s
         print "*** unknown label"
-        raise UknownLabelError
+        raise UnknownLabelError
 
 
-class UknownLabelError(Exception):
+class UnknownLabelError(Exception):
     pass
 
 

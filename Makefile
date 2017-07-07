@@ -12,6 +12,9 @@ uninstall:
 	\rm -rf h5nav.egg-info/
 
 test: init
-	pytest tests
+	pytest --cov=h5nav tests
 
-.PHONY: init test
+dummy:
+	python -c "import tests.test_cli as tc; tc.setup_module()"
+
+.PHONY: test

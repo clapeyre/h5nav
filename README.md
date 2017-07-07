@@ -1,5 +1,8 @@
 # h5nav
 
+[![Coverage
+Status](https://coveralls.io/repos/github/clapeyre/h5nav/badge.svg?branch=master)](https://coveralls.io/github/clapeyre/h5nav?branch=master)
+
 Interactive navigation of an hdf5 file.
 Written in python
 

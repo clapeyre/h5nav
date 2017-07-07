@@ -2,9 +2,11 @@
 
 [![Coverage
 Status](https://coveralls.io/repos/github/clapeyre/h5nav/badge.svg?branch=master)](https://coveralls.io/github/clapeyre/h5nav?branch=master)
+![python](https://img.shields.io/badge/python-2.7-blue.svg)
+![release](https://img.shields.io/badge/release-v0.1.0-blue.svg)
 
-Interactive navigation of an hdf5 file.
-Written in python
+Python tool for interactive navigation of an hdf5 file in a "unix shell"
+fashion.
 
 ## Installation
 
@@ -26,3 +28,6 @@ or, if you prefer to get more control, use the usual python method,
 python setup.py install --user
 ```
 
+## Authors
+
+* [**Corentin J. Lapeyre**](https://clapeyre.github.io/)

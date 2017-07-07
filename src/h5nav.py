@@ -16,7 +16,7 @@ from textwrap import dedent
 import numpy as np
 from h5py import File
 
-VERSION = 0.1
+__version__ = 0.1
 
 class ExitCmd(cmd.Cmd, object):
     def can_exit(self):
@@ -115,7 +115,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     intro = dedent("""\
             Welcome to the h5nav command line (V.{})
             Type help or ? for a list of commands,
-                 ?about for more on this app""").format(VERSION)
+                 ?about for more on this app""").format(__version__)
 
     path = '(no file)'
     h5file = None

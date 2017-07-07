@@ -10,10 +10,16 @@ Get the files:
 git clone https://github.com/clapeyre/h5nav.git
 ```
 
-and install using the usual python method:
+and install using the make shortcut:
 
 ```
-cd h5nav
-python setup.py install
+make install
+```
+
+or, if you prefer to get more control, use the usual python method,
+*e.g.*:
+
+```
+python setup.py install --user
 ```
 

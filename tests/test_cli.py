@@ -148,7 +148,7 @@ Min        Max        | Pdf (10 buckets)
 
 
 # `dump` command
-def test_dump(capsys, interp):
+def test_dump(interp):
     fname = "field1.npy"
     interp.do_cd(" Group2")
     interp.do_dump("field1")
@@ -158,10 +158,26 @@ def test_dump(capsys, interp):
 
 
 # `txt_dump` command
-def test_txt_dump(capsys, interp):
+def test_txt_dump(interp):
     fname = "field1.txt"
     interp.do_cd(" Group2")
     interp.do_txt_dump("field1")
     data = np.loadtxt(fname)
     assert np.allclose(data, np.zeros(10))
     os.remove(fname)
+
+# `rm` command
+def test_rm_dataset(capsys, interp):
+    interp.do_cd("Group1")
+    interp.do_cd("Subgroup1")
+    interp.do_rm("field1")
+    interp.do_ls('')
+    out, err = capsys.readouterr()
+    assert out.split("\n")[1] == " field2"
+
+# `rm` command
+def test_rm_group(capsys, interp):
+    interp.do_rm("Group2")
+    interp.do_ls('')
+    out, err = capsys.readouterr()
+    assert out.split("\n")[1] == "Group1/"

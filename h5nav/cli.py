@@ -161,7 +161,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         assert len(s.split()) == 1, "invalid number of arguments"
         assert isfile(s), "Can't access file " + s
         self.path = s
-        self.h5file = File(s, 'r')
+        self.h5file = File(s, 'r+')
         self.position = '/'
 
     def complete_open(self, text, line, begidx, endidx):
@@ -416,9 +416,35 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     def help_txt_dump(self):
         print "Dump dataset to txt file"
 
+    def do_rm(self, s):
+        """Delete a dataset or a group"""
+        if self.h5file is None:
+            print "*** please open a file"
+            return
+        if len(s.split()) != 1:
+            print "*** invalid number of arguments"
+            return
+        try:
+            path = self.get_elem_abspath(s)
+        except UnknownLabelError:
+            return
+        del self.h5file[path]
+        print "--- deleted", path
+
+    def complete_rm(self, text, line, begidx, endidx):
+        return [f for f in [s.strip() for s in self.datasets]
+                if f.startswith(text)]
+
+    def help_rm(self):
+        print "Delete a group or dataset"
+
+    def get_elem_abspath(self, name):
+        """Get absolute path for dataset or group"""
+        return self.position + self.get_whitespace_name(name)
+
     def get_elem(self, name):
-        return self.h5file[self.position
-                           + self.get_whitespace_name(name)]
+        """Get dataset or group using name"""
+        return self.h5file[self.get_elem_abspath(name)]
 
     def get_whitespace_name(self, s):
         """Wrap search for names with leading whitespace(s)"""

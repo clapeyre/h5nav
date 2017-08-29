@@ -124,14 +124,19 @@ class SmartCmd(cmd.Cmd, object):
 class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     """Command line interpreter for h5nav"""
     intro = dedent("""\
-            Welcome to the h5nav command line (V {})
-            Type help or ? for a list of commands,
-                 ?about for more on this app""").format(__version__)
+        Welcome to the h5nav command line (V {})
+        Type help or ? for a list of commands,
+             ?about for more on this app""").format(__version__)
 
-    path = '(no file)'
-    h5file = None
-    position = "/"
-    last_pos = "/"
+    def __init__(self):
+        super(H5NavCmd, self).__init__()
+        self._init()
+
+    def _init(self):
+        self.path = '(no file)'
+        self.h5file = None
+        self.position = "/"
+        self.last_pos = "/"
 
     @property
     def prompt(self):
@@ -160,6 +165,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     def do_open(self, s):
         assert len(s.split()) == 1, "invalid number of arguments"
         assert isfile(s), "Can't access file " + s
+        self.do_close()
         self.path = s
         self.h5file = File(s, 'r+')
         self.position = '/'
@@ -172,15 +178,33 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     def help_open(self):
         print "Load an hdf5 file"
 
+    def do_close(self):
+        if self.h5file is not None:
+            self.h5file.close()
+            self._init()
+
+    def help_close(self):
+        print "Close current file"
+
+    def do_exit(self, s):
+        """Override exit to include a close for file"""
+        self.do_close()
+        ExitCmd.do_exit(self, '')
+    do_EOF = do_exit
+    do_quit = do_exit
+    do_bye = do_exit
+
     @property
     def groups(self):
         return [f for f in self.h5file[self.position].keys()
-                if self.h5file[self.position + f].__class__.__name__ == "Group"]
+                if self.h5file[self.position + f].__class__.__name__
+                   == "Group"]
 
     @property
     def datasets(self):
         return [f for f in self.h5file[self.position].keys()
-                if self.h5file[self.position + f].__class__.__name__ == "Dataset"]
+                if self.h5file[self.position + f].__class__.__name__
+                   == "Dataset"]
 
     def do_ls(self, s):
         """sh-like ls (degraded)

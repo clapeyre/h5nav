@@ -181,3 +181,10 @@ def test_rm_group(capsys, interp):
     interp.do_ls('')
     out, err = capsys.readouterr()
     assert out.split("\n")[1] == "Group1/"
+
+# `exit` command
+def test_exit(capsys, interp):
+    with pytest.raises(SystemExit):
+        interp.do_exit('')
+    out, err = capsys.readouterr()
+    assert out == "Bye!\n"

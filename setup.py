@@ -2,6 +2,7 @@
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
+import pypandoc
 
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -9,7 +10,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="h5nav",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(exclude=['docs']),
     entry_points={
         'console_scripts': [
@@ -44,3 +45,7 @@ setup(
         'Source': "https://github.com/clapeyre/h5nav",
     },
 )
+
+z = pypandoc.convert('README.md', 'rst', format='markdown').encode('utf-8')
+with open('README.rst','w') as outfile:
+    outfile.write(z)

@@ -21,7 +21,9 @@ from textwrap import dedent
 import numpy as np
 from h5py import File
 
-__version__ = "0.1.0"
+from pkg_resources import get_distribution
+
+__version__ = get_distribution('h5nav').version
 
 
 class ExitCmd(cmd.Cmd, object):

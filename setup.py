@@ -20,6 +20,7 @@ setup(
     install_requires=[
         'numpy>=1.10',
         'h5py>=2.5',
+        'future>=0.16.0',
     ],
 
     # metadata
@@ -34,6 +35,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
     ],
     keywords='h5py interactive',
     project_urls={

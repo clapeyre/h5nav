@@ -17,4 +17,10 @@ test: init
 dummy:
 	python -c "import tests.test_cli as tc; tc.setup_module()"
 
+wheel:
+	python setup.py bdist_wheel
+
+upload: wheel
+	twine upload dist/*
+
 .PHONY: test

@@ -18,6 +18,7 @@ dummy:
 	python -c "import tests.test_cli as tc; tc.setup_module()"
 
 wheel:
+	rm -r dist
 	python setup.py bdist_wheel
 
 upload: wheel

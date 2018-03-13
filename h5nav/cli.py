@@ -7,9 +7,14 @@ interactive navigation of an hdf5 file
 Created Jan 2017 by C. Lapeyre (corentin.lapeyre@gmail.com)
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
+from future.utils import raise_from
+
 import os
 import sys
 import cmd
+from builtins import input
 from os.path import splitext, isfile
 from textwrap import dedent
 
@@ -27,7 +32,7 @@ class ExitCmd(cmd.Cmd, object):
     def onecmd(self, line):
         r = super(ExitCmd, self).onecmd(line)
         if r and (self.can_exit() or
-                  raw_input('exit anyway ? (yes/no):') == 'yes'):
+                  input('exit anyway ? (yes/no):') == 'yes'):
             return True
         return False
 
@@ -36,7 +41,7 @@ class ExitCmd(cmd.Cmd, object):
 
         Ctrl-D shortcut, exit and quit all work
         """
-        print "Bye!"
+        print("Bye!")
         sys.exit(0)
         return True
     do_EOF = do_exit
@@ -44,7 +49,7 @@ class ExitCmd(cmd.Cmd, object):
     do_bye = do_exit
 
     def help_exit(self):
-        print "Get out of here"
+        print("Get out of here")
     help_EOF = help_exit
     help_quit = help_exit
     help_bye = help_exit
@@ -56,11 +61,11 @@ class ShellCmd(cmd.Cmd, object):
         os.system(s)
 
     def help_shell(self):
-        print dedent("""\
+        print(dedent("""\
                 Execute a regular shell command.
                 Useful for e.g. 'shell ls' (to see what has been written).
                 Note : '!ls' is equivalent to 'shell ls'.
-                Warning : Your .bashrc file is *not* sourced.""")
+                Warning : Your .bashrc file is *not* sourced."""))
 
 
 class SmartCmd(cmd.Cmd, object):
@@ -89,8 +94,8 @@ class SmartCmd(cmd.Cmd, object):
             self.stdout.write('*** Unknown syntax: %s\n' % line)
             return
         elif len(func) > 1:
-            print '*** {} is a shorcut to several commands'.format(cmd)
-            print '    Please give more charaters for disambiguation'
+            print('*** {} is a shorcut to several commands'.format(cmd))
+            print('    Please give more charaters for disambiguation')
             return
         else:
             func[0](arg)
@@ -118,7 +123,7 @@ class SmartCmd(cmd.Cmd, object):
         try:
             cmd.Cmd.onecmd(self, line)
         except AssertionError as err:
-            print "\n".join("*** " + l for l in err.message.split('\n'))
+            print("\n".join("*** " + l for l in err.args[0].split('\n')))
 
 
 class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
@@ -149,14 +154,14 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         return line
 
     def help_about(self):
-        print dedent("""
+        print(dedent("""
             Welcome to the h5nav app!
 
             With this app, you can navigate a .h5 file as if you were in
             the command line. Use `cd`, `ls`, etc... to this end.
             Information about the various fields can be given using `stats`,
             `pdf` or `dump` for example.
-            """)
+            """))
 
     def emptyline(self):
         """Empty line behavior: do nothing"""
@@ -176,7 +181,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         return [f for f in candidates if f.startswith(text)]
 
     def help_open(self):
-        print "Load an hdf5 file"
+        print("Load an hdf5 file")
 
     def do_close(self):
         if self.h5file is not None:
@@ -184,7 +189,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             self._init()
 
     def help_close(self):
-        print "Close current file"
+        print("Close current file")
 
     def do_exit(self, s):
         """Override exit to include a close for file"""
@@ -212,15 +217,15 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         Supports fake globbing: either 'group_name' or '*' -> all folders
         """
         if self.h5file is None:
-            print "*** please open a file"
+            print("*** please open a file")
             return
 
         def ls_grp(grp):
             save = self.position[:]
             save_last = self.last_pos[:]
-            print grp + "/"
+            print(grp + "/")
             self.do_cd(grp)
-            print "    ",
+            print("    ",)
             self.do_ls('')
             self.do_cd('..')
             self.position = save[:]
@@ -229,8 +234,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         if '*' in s:
             for grp in self.groups:
                 ls_grp(grp)
-            print "./"
-            print "    " + " ".join(self.datasets)
+            print("./")
+            print("    " + " ".join(self.datasets))
         elif s:
             try:
                 grp = self.get_whitespace_name(s)
@@ -239,10 +244,10 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             ls_grp(grp)
         else:
             out = [g + '/' for g in self.groups] + self.datasets
-            print " ".join(sorted(out))
+            print(" ".join(sorted(out)))
 
     def help_ls(self):
-        print "List current group contents. Supports `ls *`"
+        print("List current group contents. Supports `ls *`")
 
     def do_cd(self, s):
         """sh-like cd (degraded)
@@ -251,10 +256,10 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         and of course cd group
         """
         if self.h5file is None:
-            print "*** please open a file"
+            print("*** please open a file")
             return
         if len(s.split()) > 1:
-            print "*** invalid number of arguments"
+            print("*** invalid number of arguments")
             return
         if s == '':
             self.last_pos = self.position[:]
@@ -278,7 +283,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             except UnknownLabelError:
                 return
             if pos not in self.groups:
-                print "*** can only cd into groups"
+                print("*** can only cd into groups")
                 return
             self.position += pos + '/'
             self.last_pos = self.position[:]
@@ -287,23 +292,23 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         return [f for f in self.groups if f.startswith(text)]
 
     def help_cd(self):
-        print "Enter group. Also ok: `cd ..` (up), `cd -` (last), `cd` (root)"
+        print("Enter group. Also ok: `cd ..` (up), `cd -` (last), `cd` (root)")
 
     def do_print(self, s):
         """Print a dataset on screen"""
         if self.h5file is None:
-            print "*** please open a file"
+            print("*** please open a file")
             return
         if len(s.split()) != 1:
-            print "*** invalid number of arguments"
+            print("*** invalid number of arguments")
             return
         if s == '*':
             for dts in self.datasets:
-                print dts + ' :'
-                print '    ', self.get_elem(dts).value
+                print(dts + ' :')
+                print('    ', self.get_elem(dts).value)
         else:
             try:
-                print self.get_elem(s).value
+                print(self.get_elem(s).value)
             except UnknownLabelError:
                 return
 
@@ -312,15 +317,15 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 if f.startswith(text)]
 
     def help_print(self):
-        print "Print dataset to screen"
+        print("Print dataset to screen")
 
     def do_stats(self, s):
         """Print statistics for dataset on screen"""
         if self.h5file is None:
-            print "*** please open a file"
+            print("*** please open a file")
             return
         if len(s.split()) != 1:
-            print "*** invalid number of arguments"
+            print("*** invalid number of arguments")
             return
 
         def print_stats(nparr):
@@ -331,19 +336,19 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 std = nparr.std()
             except:
                 mini, mean, maxi, std = ["Undef"]*4
-            print nparr.shape, nparr.dtype, mini, mean, maxi, std
+            print(nparr.shape, nparr.dtype, mini, mean, maxi, std)
         if s == '*':
-            print "    Shape type min mean max std"
+            print("    Shape type min mean max std")
             for dts in self.datasets:
-                print dts + ' :'
-                print '    ',
+                print(dts + ' :')
+                print('    ',)
                 print_stats(self.get_elem(dts).value)
         else:
             try:
                 nparr = self.get_elem(s).value
             except UnknownLabelError:
                 return
-            print "Shape type min mean max std"
+            print("Shape type min mean max std")
             print_stats(nparr)
 
     def complete_stats(self, text, line, begidx, endidx):
@@ -351,116 +356,116 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 if f.startswith(text)]
 
     def help_stats(self):
-        print "Get general statistics of dataset"
+        print("Get general statistics of dataset")
 
     def do_pdf(self, s):
         """Print pdf for dataset on screen"""
         if self.h5file is None:
-            print "*** please open a file"
+            print("*** please open a file")
             return
         if len(s.split()) != 1:
-            print "*** invalid number of arguments"
+            print("*** invalid number of arguments")
             return
         if s == '*':
-            print "    Min        Max        | Pdf (10 buckets)"
+            print("    Min        Max        | Pdf (10 buckets)")
             for dts in self.datasets:
-                print dts + ' :'
+                print(dts + ' :')
                 dts = self.get_elem(dts).value
-                print "    {0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),
-                print np.histogram(dts)[0].tolist()
+                print("    {0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),)
+                print(np.histogram(dts)[0].tolist())
         else:
             try:
                 nparr = self.get_elem(s).value
             except UnknownLabelError:
                 return
-            print "Min        Max        | Pdf (10 buckets)"
-            print "{0:5.4e} {1:5.4e} |".format(nparr.min(), nparr.max()),
-            print np.histogram(nparr)[0].tolist()
+            print("Min        Max        | Pdf (10 buckets)")
+            print("{0:5.4e} {1:5.4e} |".format(nparr.min(), nparr.max()),)
+            print(np.histogram(nparr)[0].tolist())
 
     def complete_pdf(self, text, line, begidx, endidx):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
 
     def help_pdf(self):
-        print "Get pdf of dataset"
+        print("Get pdf of dataset")
 
     def do_dump(self, s):
         """Dump dataset in numpy binary format"""
         if self.h5file is None:
-            print "*** please open a file"
+            print("*** please open a file")
             return
         if len(s.split()) != 1:
-            print "*** invalid number of arguments"
+            print("*** invalid number of arguments")
             return
         if s == '*':
             for dts in self.datasets:
                 dts = self.get_elem(dts).value
                 np.save(s, dts)
-                print "--- file saved to {}.npy".format(s)
+                print("--- file saved to {}.npy".format(s))
         else:
             try:
                 nparr = self.get_elem(s).value
             except UnknownLabelError:
                 return
             np.save(s, nparr)
-            print "--- file saved to {}.npy".format(s)
+            print("--- file saved to {}.npy".format(s))
 
     def complete_dump(self, text, line, begidx, endidx):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
 
     def help_dump(self):
-        print "Dump dataset to numpy binary"
+        print("Dump dataset to numpy binary")
 
     def do_txt_dump(self, s):
         """Dump dataset in txt format"""
         if self.h5file is None:
-            print "*** please open a file"
+            print("*** please open a file")
             return
         if len(s.split()) != 1:
-            print "*** invalid number of arguments"
+            print("*** invalid number of arguments")
             return
         if s == '*':
             for dts in self.datasets:
                 dts = self.get_elem(dts).value
                 np.savetxt(s+'.txt', dts)
-                print "--- file saved to {}.txt".format(s)
+                print("--- file saved to {}.txt".format(s))
         else:
             try:
                 nparr = self.get_elem(s).value
             except UnknownLabelError:
                 return
             np.savetxt(s + '.txt', nparr)
-            print "--- file saved to {}.txt".format(s)
+            print("--- file saved to {}.txt".format(s))
 
     def complete_txt_dump(self, text, line, begidx, endidx):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
 
     def help_txt_dump(self):
-        print "Dump dataset to txt file"
+        print("Dump dataset to txt file")
 
     def do_rm(self, s):
         """Delete a dataset or a group"""
         if self.h5file is None:
-            print "*** please open a file"
+            print("*** please open a file")
             return
         if len(s.split()) != 1:
-            print "*** invalid number of arguments"
+            print("*** invalid number of arguments")
             return
         try:
             path = self.get_elem_abspath(s)
         except UnknownLabelError:
             return
         del self.h5file[path]
-        print "--- deleted", path
+        print("--- deleted", path)
 
     def complete_rm(self, text, line, begidx, endidx):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
 
     def help_rm(self):
-        print "Delete a group or dataset"
+        print("Delete a group or dataset")
 
     def get_elem_abspath(self, name):
         """Get absolute path for dataset or group"""
@@ -477,7 +482,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             if s in targets:
                 return s
             s = " " + s
-        print "*** unknown label"
+        print("*** unknown label")
         raise UnknownLabelError
 
 

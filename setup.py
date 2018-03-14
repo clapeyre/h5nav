@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 from codecs import open
-from os import path
-import pypandoc
+from os.path import isfile, join, abspath, dirname
 
-here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+
+here = abspath(dirname(__file__))
+readme = (join(here, 'README.rst') if isfile(join(here, 'README.rst'))
+          else 'README.md')
+with open(readme, encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -23,6 +25,13 @@ setup(
         'h5py>=2.5',
         'future>=0.16.0',
     ],
+    extras_require={
+        'dev': [
+            'future',
+            'pytest',
+            'pytest-cov',
+        ],
+    },
 
     # metadata
     author="Corentin J. Lapeyre",
@@ -45,7 +54,3 @@ setup(
         'Source': "https://github.com/clapeyre/h5nav",
     },
 )
-
-z = pypandoc.convert('README.md', 'rst', format='markdown').encode('utf-8')
-with open('README.rst','w') as outfile:
-    outfile.write(z)

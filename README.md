@@ -11,23 +11,25 @@ fashion.
 
 ## Installation
 
-Get the files:
-```
-git clone https://github.com/clapeyre/h5nav.git
-```
+Whether for python 2 or 3, it's as simple as:
 
-and install using the make shortcut:
+    pip install h5nav
 
-```
-make install
-```
+## Contributing
 
-or, if you prefer to get more control, use the usual python method,
-*e.g.*:
+To install locally, start by getting the files:
 
-```
-python setup.py install --user
-```
+    git clone https://github.com/clapeyre/h5nav.git
+
+Make sure you have `pandoc` installed, as it is used to convert the `README.md`
+to `README.rst` file. The first is the source, used on GitHub. The latter is
+generated, so as to show up on PyPI. Then, run:
+
+    make develop
+
+in your favorite (virtual) environment. You are ready to work in h5nav, and see
+your work dynamically updated when calling `h5nav`. Please submit merge
+requests directly on GitHub.
 
 ## Authors
 

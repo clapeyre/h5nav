@@ -150,8 +150,17 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
 
     @property
     def prompt(self):
-        return "\033[92mh5nav\033[0m {0}{1} > ".format(self.path,
-                                                       self.position)
+        path = self.path[:]
+        split = path.split('/')
+        if path[0] == '/':
+            path = '/.../' + split[-1]
+        elif path[:3] == '../':
+            if len(split) > 2:
+                path = '../.../' + split[-1]
+        else:
+            if '/' in path and len(split) > 2:
+                path = '.../' + split[-1]
+        return "\033[92mh5nav\033[0m {0}{1} > ".format(path, self.position)
 
     def precmd(self, line):
         """Reprint the line to know what is executed"""

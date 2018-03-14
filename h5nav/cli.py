@@ -17,6 +17,10 @@ from builtins import input
 from os.path import splitext, isfile
 from textwrap import dedent
 
+# Ignore the annoying FutureWarning from h5py
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import numpy as np
 from h5py import File
 

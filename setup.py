@@ -23,11 +23,9 @@ setup(
     install_requires=[
         'numpy>=1.10',
         'h5py>=2.5',
-        'future>=0.16.0',
     ],
     extras_require={
         'dev': [
-            'future',
             'pytest',
             'pytest-cov',
         ],

@@ -24,6 +24,9 @@ wheel: init
 	rm -r dist
 	python setup.py bdist_wheel
 
+upload_test: wheel
+	twine upload -r test dist/*
+
 upload: wheel
 	twine upload dist/*
 

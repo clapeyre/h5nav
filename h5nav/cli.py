@@ -9,7 +9,6 @@ Created Jan 2017 by C. Lapeyre (corentin.lapeyre@gmail.com)
 
 from __future__ import absolute_import
 from __future__ import print_function
-from future.utils import raise_from
 
 import os
 import sys

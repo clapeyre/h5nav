@@ -12,7 +12,7 @@ with open(readme, encoding='utf-8') as f:
 
 setup(
     name="h5nav",
-    version="0.1.3",
+    version="0.1.4",
     packages=find_packages(exclude=['docs']),
     entry_points={
         'console_scripts': [

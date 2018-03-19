@@ -239,7 +239,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             save_last = self.last_pos[:]
             print(grp + "/")
             self.do_cd(grp)
-            print("    ",)
+            print("    ", end='')
             self.do_ls('')
             self.do_cd('..')
             self.position = save[:]
@@ -355,7 +355,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             print("    Shape type min mean max std")
             for dts in self.datasets:
                 print(dts + ' :')
-                print('    ',)
+                print('    ', end='')
                 print_stats(self.get_elem(dts).value)
         else:
             try:
@@ -385,7 +385,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             for dts in self.datasets:
                 print(dts + ' :')
                 dts = self.get_elem(dts).value
-                print("    {0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),)
+                print("    {0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),
+                      end='')
                 print(np.histogram(dts)[0].tolist())
         else:
             try:
@@ -393,7 +394,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             except UnknownLabelError:
                 return
             print("Min        Max        | Pdf (10 buckets)")
-            print("{0:5.4e} {1:5.4e} |".format(nparr.min(), nparr.max()),)
+            print("{0:5.4e} {1:5.4e} |".format(nparr.min(), nparr.max()),
+                  end='')
             print(np.histogram(nparr)[0].tolist())
 
     def complete_pdf(self, text, line, begidx, endidx):

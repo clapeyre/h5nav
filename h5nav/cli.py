@@ -481,7 +481,9 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 if f.startswith(text)]
 
     def help_rm(self):
-        print("Delete a group or dataset")
+        print("Delete a group or dataset.")
+        print("WARNING: this behaves like `rm`: it happens immediately")
+        print("There is no 'undo' or 'quit without save' feature"
 
     def get_elem_abspath(self, name):
         """Get absolute path for dataset or group"""

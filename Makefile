@@ -1,10 +1,7 @@
-init:
-	pandoc -o README.rst README.md
-
-req: init
+req:
 	pip install -r requirements.txt
 
-develop: init
+develop:
 	pip install -e .[dev]
 
 install: req
@@ -20,7 +17,7 @@ test: req
 dummy:
 	python -c "import tests.test_cli as tc; tc.setup_module()"
 
-wheel: init
+wheel:
 	rm -r dist
 	python setup.py bdist_wheel
 

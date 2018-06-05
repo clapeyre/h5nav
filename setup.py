@@ -4,15 +4,12 @@ from codecs import open
 from os.path import isfile, join, abspath, dirname
 
 
-here = abspath(dirname(__file__))
-readme = (join(here, 'README.rst') if isfile(join(here, 'README.rst'))
-          else 'README.md')
-with open(readme, encoding='utf-8') as f:
+with open("README.md", encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name="h5nav",
-    version="0.1.4",
+    version="0.1.5",
     packages=find_packages(exclude=['docs']),
     entry_points={
         'console_scripts': [
@@ -36,6 +33,7 @@ setup(
     author_email="corentin.lapeyre@gmail.com",
     description="hdf5 file interactive navigation and editing tool",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     license="MIT",
     url="https://github.com/clapeyre/h5nav",
     classifiers=[

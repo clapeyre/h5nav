@@ -91,7 +91,7 @@ class SmartCmd(cmd.Cmd, object):
                 sys.stdout.write('\n')
 
     def default(self, line):
-        """Override this command from cmd.Cmd to accept shorcuts"""
+        """Override this command from cmd.Cmd to accept shortcuts"""
         cmd, arg, _ = self.parseline(line)
         func = [getattr(self, n) for n in self.get_names()
                 if n.startswith('do_' + cmd)]
@@ -169,13 +169,13 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
 
     def help_about(self):
         print(dedent("""
-            Welcome to the h5nav app!
+            Welcome to the h5nav app!  This is version {}
 
             With this app, you can navigate a .h5 file as if you were in
             the command line. Use `cd`, `ls`, etc... to this end.
             Information about the various fields can be given using `stats`,
             `pdf` or `dump` for example.
-            """))
+            """.format(__version__)))
 
     def emptyline(self):
         """Empty line behavior: do nothing"""
@@ -308,7 +308,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     def help_cd(self):
         print("Enter group. Also ok: `cd ..` (up), `cd -` (last), `cd` (root)")
 
-    def do_print(self, s):
+    def do_cat(self, s):
         """Print a dataset on screen"""
         if self.h5file is None:
             print("*** please open a file")
@@ -326,11 +326,11 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             except UnknownLabelError:
                 return
 
-    def complete_print(self, text, line, begidx, endidx):
+    def complete_cat(self, text, line, begidx, endidx):
         return [f for f in [s.strip() for s in self.datasets]
                 if f.startswith(text)]
 
-    def help_print(self):
+    def help_cat(self):
         print("Print dataset to screen")
 
     def do_stats(self, s):
@@ -380,23 +380,28 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         if len(s.split()) != 1:
             print("*** invalid number of arguments")
             return
+
+        def print_pdf(nparr, prefix=""):
+            try:
+                print("{0}{1:5.4e} {2:5.4e} | ".format(prefix, nparr.min(), nparr.max()),
+                      end='')
+                print(np.histogram(nparr)[0].tolist())
+            except:
+                print("String type. PDF does not apply")
+
         if s == '*':
             print("    Min        Max        | Pdf (10 buckets)")
             for dts in self.datasets:
                 print(dts + ' :')
                 dts = self.get_elem(dts).value
-                print("    {0:5.4e} {1:5.4e} |".format(dts.min(), dts.max()),
-                      end='')
-                print(np.histogram(dts)[0].tolist())
+                print_pdf(dts, prefix="    ")
         else:
             try:
                 nparr = self.get_elem(s).value
             except UnknownLabelError:
                 return
             print("Min        Max        | Pdf (10 buckets)")
-            print("{0:5.4e} {1:5.4e} |".format(nparr.min(), nparr.max()),
-                  end='')
-            print(np.histogram(nparr)[0].tolist())
+            print_pdf(nparr)
 
     def complete_pdf(self, text, line, begidx, endidx):
         return [f for f in [s.strip() for s in self.datasets]
@@ -483,7 +488,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     def help_rm(self):
         print("Delete a group or dataset.")
         print("WARNING: this behaves like `rm`: it happens immediately")
-        print("There is no 'undo' or 'quit without save' feature"
+        print("There is no 'undo' or 'quit without save' feature")
 
     def get_elem_abspath(self, name):
         """Get absolute path for dataset or group"""

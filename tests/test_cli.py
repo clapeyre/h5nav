@@ -39,9 +39,9 @@ def test_ls_star(capsys, interp):
     out, err = capsys.readouterr()
     assert out == """\
  Group2/
-     field1
+    field1
 Group1/
-     Subgroup1/ field1
+    Subgroup1/ field1
 ./
     \n"""
 
@@ -95,17 +95,17 @@ def test_cd_unknown_label(capsys, interp):
     #     interp.do_cd('zzz')
 
 
-# `print` command
-def test_print(capsys, interp):
+# `cat` command
+def test_cat(capsys, interp):
     interp.do_cd("Group1")
-    interp.do_print("field1")
+    interp.do_cat("field1")
     out, err = capsys.readouterr()
     assert out == "information\n"
 
-def test_print_star(capsys, interp):
+def test_cat_star(capsys, interp):
     interp.do_cd("Group1")
     interp.do_cd("Subgroup1")
-    interp.do_print("*")
+    interp.do_cat("*")
     out, err = capsys.readouterr()
     assert out == """\
  field2 :
@@ -116,10 +116,11 @@ def test_print_star(capsys, interp):
  144 146 148 150 152 154 156 158 160 162 164 166 168 170 172 174 176 178
  180 182 184 186 188 190 192 194 196 198]
 field1 :
-     [ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
- 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49
- 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74
- 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99]
+     [ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+ 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+ 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71
+ 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
+ 96 97 98 99]
 """
 
 
@@ -131,7 +132,7 @@ def test_stats(capsys, interp):
     out, err = capsys.readouterr()
     assert out == """\
 Shape type min mean max std
-(100,) int64 0 49.5 99 28.8660700477
+(100,) int64 0 49.5 99 28.86607004772212
 """
 
 

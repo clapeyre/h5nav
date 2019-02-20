@@ -319,10 +319,10 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
         if s == '*':
             for dts in self.datasets:
                 print(dts + ' :')
-                print('    ', self.get_elem(dts).value)
+                print('    ', self.get_elem(dts)[()])
         else:
             try:
-                print(self.get_elem(s).value)
+                print(self.get_elem(s)[()])
             except UnknownLabelError:
                 return
 
@@ -356,10 +356,10 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             for dts in self.datasets:
                 print(dts + ' :')
                 print('    ', end='')
-                print_stats(self.get_elem(dts).value)
+                print_stats(self.get_elem(dts)[()])
         else:
             try:
-                nparr = self.get_elem(s).value
+                nparr = self.get_elem(s)[()]
             except UnknownLabelError:
                 return
             print("Shape type min mean max std")
@@ -393,11 +393,11 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             print("    Min        Max        | Pdf (10 buckets)")
             for dts in self.datasets:
                 print(dts + ' :')
-                dts = self.get_elem(dts).value
+                dts = self.get_elem(dts)[()]
                 print_pdf(dts, prefix="    ")
         else:
             try:
-                nparr = self.get_elem(s).value
+                nparr = self.get_elem(s)[()]
             except UnknownLabelError:
                 return
             print("Min        Max        | Pdf (10 buckets)")
@@ -420,12 +420,12 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             return
         if s == '*':
             for dts in self.datasets:
-                dts = self.get_elem(dts).value
+                dts = self.get_elem(dts)[()]
                 np.save(s, dts)
                 print("--- file saved to {}.npy".format(s))
         else:
             try:
-                nparr = self.get_elem(s).value
+                nparr = self.get_elem(s)[()]
             except UnknownLabelError:
                 return
             np.save(s, nparr)
@@ -448,12 +448,12 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             return
         if s == '*':
             for dts in self.datasets:
-                dts = self.get_elem(dts).value
+                dts = self.get_elem(dts)[()]
                 np.savetxt(s+'.txt', dts)
                 print("--- file saved to {}.txt".format(s))
         else:
             try:
-                nparr = self.get_elem(s).value
+                nparr = self.get_elem(s)[()]
             except UnknownLabelError:
                 return
             np.savetxt(s + '.txt', nparr)

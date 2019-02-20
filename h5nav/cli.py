@@ -342,6 +342,9 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
             print("*** invalid number of arguments")
             return
 
+        header = "Type           mean +/- std*2       [        min, max        ] (Shape)"
+        header += '\n' + '-' * (len(header) + 4)
+
         def print_stats(nparr):
             try:
                 mini = nparr.min()
@@ -350,9 +353,11 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 std = nparr.std()
             except:
                 mini, mean, maxi, std = ["Undef"]*4
-            print(nparr.shape, nparr.dtype, mini, mean, maxi, std)
+            print("{0} {1: 5.4e} +/- {2: 5.4e} [{3: 5.4e}, {4: 5.4e}] {5}".format(
+                        nparr.dtype, mean, std*2, mini, maxi, nparr.shape))
+
         if s == '*':
-            print("    Shape type min mean max std")
+            print("    " + header)
             for dts in self.datasets:
                 print(dts + ' :')
                 print('    ', end='')
@@ -362,7 +367,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 nparr = self.get_elem(s)[()]
             except UnknownLabelError:
                 return
-            print("Shape type min mean max std")
+            print(header)
             print_stats(nparr)
 
     def complete_stats(self, text, line, begidx, endidx):
@@ -370,7 +375,8 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 if f.startswith(text)]
 
     def help_stats(self):
-        print("Get general statistics of dataset")
+        print("Get general statistics of dataset. +/- is 95% confidence"
+              " interval (2 standard deviations).")
 
     def do_pdf(self, s):
         """Print pdf for dataset on screen"""
@@ -383,14 +389,17 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
 
         def print_pdf(nparr, prefix=""):
             try:
-                print("{0}{1:5.4e} {2:5.4e} | ".format(prefix, nparr.min(), nparr.max()),
+                print("{0}{1: 5.4e} {2: 5.4e} | ".format(prefix, nparr.min(), nparr.max()),
                       end='')
                 print(np.histogram(nparr)[0].tolist())
             except:
                 print("String type. PDF does not apply")
 
+        header = "Min         Max         | Pdf (10 buckets)"
+        header += '\n' + '-' * (len(header) + 4)
+
         if s == '*':
-            print("    Min        Max        | Pdf (10 buckets)")
+            print("    " + header)
             for dts in self.datasets:
                 print(dts + ' :')
                 dts = self.get_elem(dts)[()]
@@ -400,7 +409,7 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
                 nparr = self.get_elem(s)[()]
             except UnknownLabelError:
                 return
-            print("Min        Max        | Pdf (10 buckets)")
+            print(header)
             print_pdf(nparr)
 
     def complete_pdf(self, text, line, begidx, endidx):

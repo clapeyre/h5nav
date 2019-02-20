@@ -131,8 +131,9 @@ def test_stats(capsys, interp):
     interp.do_stats("field1")
     out, err = capsys.readouterr()
     assert out == """\
-Shape type min mean max std
-(100,) int64 0 49.5 99 28.86607004772212
+Type           mean +/- std*2       [        min, max        ] (Shape)
+--------------------------------------------------------------------------
+int64  4.9500e+01 +/-  5.7732e+01 [ 0.0000e+00,  9.9000e+01] (100,)
 """
 
 
@@ -143,8 +144,9 @@ def test_pdf(capsys, interp):
     interp.do_pdf("field1")
     out, err = capsys.readouterr()
     assert out == """\
-Min        Max        | Pdf (10 buckets)
-0.0000e+00 9.9000e+01 | [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+Min         Max         | Pdf (10 buckets)
+----------------------------------------------
+ 0.0000e+00  9.9000e+01 | [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
 """
 
 

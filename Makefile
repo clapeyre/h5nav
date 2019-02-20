@@ -11,7 +11,7 @@ uninstall:
 	pip uninstall h5nav
 	\rm -rf h5nav.egg-info/
 
-test: req
+test:
 	pytest --cov=h5nav tests
 
 dummy:
@@ -21,7 +21,7 @@ wheel:
 	rm -r dist
 	python setup.py bdist_wheel
 
-upload_test: wheel
+upload_test: test wheel
 	twine upload -r test dist/*
 
 upload: wheel

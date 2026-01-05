@@ -100,7 +100,9 @@ def test_cat(capsys, interp):
     interp.do_cd("Group1")
     interp.do_cat("field1")
     out, err = capsys.readouterr()
-    assert out == "information\n"
+    out = eval(out)
+    out = out.decode('utf-8')
+    assert out == "information"
 
 def test_cat_star(capsys, interp):
     interp.do_cd("Group1")

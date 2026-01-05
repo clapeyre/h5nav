@@ -24,9 +24,11 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 import numpy as np
 from h5py import File
 
-from pkg_resources import get_distribution
-
-__version__ = get_distribution('h5nav').version
+try:
+    from ._version import __version__
+except ImportError:
+    # Fallback if package is not installed/built yet
+    __version__ = "unknown"
 
 
 class ExitCmd(cmd.Cmd, object):

@@ -1,30 +1,28 @@
-req:
-	pip install -r requirements.txt
+# Modern Makefile for h5nav using uv
+
+install:
+	uv pip install .
 
 develop:
-	pip install -e .[dev]
-
-install: req
-	python setup.py install
+	uv pip install -e ".[dev]"
 
 uninstall:
-	pip uninstall h5nav
-	\rm -rf h5nav.egg-info/
+	uv pip uninstall h5nav
+	rm -rf h5nav.egg-info/
 
 test:
-	pytest --cov=h5nav tests
+	uv run pytest --cov=h5nav tests
+
+build:
+	rm -rf dist
+	uv build
+
+clean:
+	rm -rf dist build *.egg-info .pytest_cache
+	find . -name "*.pyc" -delete
+	find . -name "__pycache__" -delete
 
 dummy:
-	python -c "import tests.test_cli as tc; tc.setup_module()"
+	uv run python -c "import tests.test_cli as tc; tc.setup_module()"
 
-wheel:
-	rm -r dist
-	python setup.py bdist_wheel
-
-upload_test: test wheel
-	twine upload -r test dist/*
-
-upload: wheel
-	twine upload dist/*
-
-.PHONY: test
+.PHONY: install develop uninstall test build clean dummy

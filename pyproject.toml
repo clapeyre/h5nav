@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "h5nav"
+dynamic = ["version"]
+description = "hdf5 file interactive navigation and editing tool"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [
+  { name = "Corentin J. Lapeyre", email = "corentin.lapeyre@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+]
+dependencies = [
+  "numpy>=1.10",
+  "h5py>=2.5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+]
+
+[project.scripts]
+h5nav = "h5nav.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/clapeyre/h5nav"
+
+# --- Automatic Versioning (The Magic Part) ---
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "_version.py"

@@ -1,5 +1,0 @@
-include *.rst *.txt LICENSE docs/Makefile
-recursive-include tests *.py
-recursive-include docs *.rst
-recursive-include docs *.py
-prune docs/_build

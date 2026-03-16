@@ -310,18 +310,36 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     def help_cd(self):
         print("Enter group. Also ok: `cd ..` (up), `cd -` (last), `cd` (root)")
 
+    def top_level_spaces(self, s):
+        """Count top-level spaces in s, ignoring those within square brackets"""
+        balance = 0
+        count = 0
+        for c in s:
+            if c == '[':
+                balance += 1
+            elif c == ']':
+                balance -= 1
+            elif c.isspace() and balance == 0:
+                count +=1
+        return count
+
     def do_cat(self, s):
         """Print a dataset on screen"""
         if self.h5file is None:
             print("*** please open a file")
             return
-        if len(s.split()) != 1:
+        if self.top_level_spaces(s) > 0:
             print("*** invalid number of arguments")
             return
         if s == '*':
             for dts in self.datasets:
                 print(dts + ' :')
                 print('    ', self.get_elem(dts)[()])
+        if '[' in s:
+            slice_start = s.find('[')+1
+            slice_end = s.find(']')
+            s_slice = s[slice_start:slice_end]
+            print(self.get_elem_slice(s[:slice_start-1], s_slice))
         else:
             try:
                 print(self.get_elem(s)[()])
@@ -508,6 +526,24 @@ class H5NavCmd(ExitCmd, ShellCmd, SmartCmd, cmd.Cmd, object):
     def get_elem(self, name):
         """Get dataset or group using name"""
         return self.h5file[self.get_elem_abspath(name)]
+
+    def parse_slice(self, string):
+        """Parse a `slice()` from string, like `start:stop:step`"""
+        if string:
+            parts = string.split(':')
+            if len(parts) == 1:
+                parts = [int(parts[0]), str(int(parts[0])+1)]
+        else:
+            parts = []
+        return slice(*[int(p) if p else None for p in parts])
+
+    def get_elem_slice(self, name, slice_string):
+        """Get the slice_string slice of a dataset or group using name"""
+        dim_strings = [x.strip() for x in slice_string.split(',')]
+        s_slice = ()
+        for dim in dim_strings:
+            s_slice += (self.parse_slice(dim),)
+        return np.squeeze(self.h5file[self.get_elem_abspath(name)][s_slice])
 
     def get_whitespace_name(self, s):
         """Wrap search for names with leading whitespace(s)"""
